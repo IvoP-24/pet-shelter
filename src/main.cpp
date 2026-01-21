@@ -26,7 +26,6 @@ int main()
     Shelter shelter(prev_time,timestamp);
     
     getline(game_data,line);
-    cout << line <<endl;
     int pet_count = stoi(line,0,10);
     for(int i = 0; i< pet_count; i++)
     {   
