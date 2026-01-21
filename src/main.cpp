@@ -8,15 +8,16 @@
 
 using namespace std;
 
-int main()
+int main(int argc, char** argv)
 {   
       
 
     string line;
     ifstream game_data;
+    Pet::get_names_from_file();
+    Employee::get_names_from_file();
     game_data.open("game_data.txt");
     
-
     getline(game_data,line);
 
     time_t prev_time = stoi(line,0,10);
@@ -27,6 +28,7 @@ int main()
     
     getline(game_data,line);
     int pet_count = stoi(line,0,10);
+
     for(int i = 0; i< pet_count; i++)
     {   
         int temp_at;
@@ -34,8 +36,8 @@ int main()
         int temp_hap;
         string temp_id;
         string temp_name;
-        if(getline(game_data,line)){temp_id = stoi(line);}else{break;}
-        if(getline(game_data,line)){temp_name = stoi(line);}else{break;}
+        if(getline(game_data,line)){temp_id = line;}else{break;}
+        if(getline(game_data,line)){temp_name = line;}else{break;}
         if(getline(game_data,line)){temp_at = stoi(line);}else{break;}
         if(getline(game_data,line)){temp_hun = stoi(line);}else{break;}
         if(getline(game_data,line)){temp_hap = stoi(line);}else{break;}
@@ -43,14 +45,66 @@ int main()
         shelter.addPet(test_pet);
 
     }
+
+    getline(game_data,line);
+    int employes_count = stoi(line,0,10);
+
+    for(int i = 0; i< employes_count; i++)
+    {   
+        int temp_gr;
+        int temp_mr;
+        int temp_ct;
+        int temp_sl;
+        string temp_id;
+        string temp_name;
+        if(getline(game_data,line)){temp_id = line;}else{break;}
+        if(getline(game_data,line)){temp_name = line;}else{break;}
+        if(getline(game_data,line)){temp_gr = stoi(line);}else{break;}
+        if(getline(game_data,line)){temp_mr = stoi(line);}else{break;}
+        if(getline(game_data,line)){temp_ct = stoi(line);}else{break;}
+        if(getline(game_data,line)){temp_sl = stoi(line);}else{break;}
+        Employee* temp_employee = new Employee(temp_id, temp_name, temp_gr,temp_mr,temp_ct,temp_sl);
+        shelter.addEmployee(temp_employee);
+
+    }
+
+    if(getline(game_data,line))
+    {
+        int task_count = stoi(line,0,10);
+        for(int i = 0; i< task_count; i++)
+        {
+            string temp_employee_id;
+            Task_type temp_task_type;
+            time_t temp_start_time;
+            int temp_duration;
+            if(getline(game_data,line)){;}else{break;}
+            if(getline(game_data,line)){temp_employee_id = line;}else{break;}
+            if(getline(game_data,line)){temp_task_type = Task_type(stoi(line));}else{break;}
+            if(getline(game_data,line)){temp_duration = stoi(line);}else{break;}
+            shelter.addNewTask(temp_employee_id,temp_task_type,temp_duration);
+        }
+    }
+
     game_data.close();
 
+    if(string(argv[1]).compare("feed") == 0)
+    {
+        shelter.addNewTask(shelter.get_employes()[0]->get_id(),Task_type::FEED,1);
+    }
     
-    if(shelter.update())
+    bool update = shelter.update();
+    if(true)
     {
         ofstream game_data;
         game_data.open("game_data.txt", ios::out | ios::trunc);
-        game_data << timestamp << endl;
+        if(update)
+        {
+            game_data << timestamp << endl;
+        }
+        else
+        {
+            game_data << prev_time << endl;
+        }
         game_data << shelter.get_pets().size() << endl;
         for(Pet* pet: shelter.get_pets())
         {   
@@ -60,10 +114,33 @@ int main()
             game_data << pet->get_hunger() << endl;
             game_data << pet->get_happines() << endl;
         }
+        game_data << shelter.get_employes().size() << endl;
+        for(Employee* employee: shelter.get_employes())
+        {   
+            game_data << employee->get_id() << endl;
+            game_data << employee->get_name() << endl;
+            game_data << employee->get_grooming_skill_level() << endl;
+            game_data << employee->get_marketing_skill_level() << endl;
+            game_data << employee->get_caretaking_skill_level() << endl;
+            game_data << employee->get_salary() << endl;
+        }
+        if(shelter.getTasks().size() > 0)
+        {
+            game_data << shelter.getTasks().size() << endl;
+            for(Task task: shelter.getTasks())
+            {
+                game_data << task.id << endl; 
+                game_data << task.employee_id << endl; 
+                game_data << task.task_type << endl; 
+                game_data << task.duration << endl;
+            
+            }
+        }
         game_data.close();
     }
     shelter.show_pets_stats();
-
+    shelter.show_employes();
+    shelter.showTasks();
 
     return 0;
 
