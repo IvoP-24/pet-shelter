@@ -114,6 +114,32 @@ bool Shelter::update()
                     }
                     break;
                 case ADVERTISE:
+                    float mark_coef = curr_employee.get_marketing_skill_level()/10.0;
+                    for(int i = 0; i<passed_time_spent_on_work; i++)
+                    {
+                        float rand_val = rand()*1.0 / RAND_MAX;
+                        if(rand_val < mark_coef)
+                        {
+                            if(rand()*1.0 / RAND_MAX > 0.01)
+                            {
+                                int mood = rand()%2000; // if mood is 0 - any pet would be taken from the shelter
+                                for(Pet* pet : pets)
+                                {
+                                    if(mood < (pet->get_attractivenes() + pet->get_happines()))
+                                    {
+                                        pets.erase(find(pets.begin(),pets.end(),pet));
+                                        break;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                this-> monthly_income += curr_employee.get_marketing_skill_level();
+                            }
+                        }
+                    }
+
+                    break; 
                 case TAKE_CARE:
                     for(Pet* pet : pets)
                     {
