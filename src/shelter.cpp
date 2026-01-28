@@ -2,11 +2,13 @@
 
 
 
-Shelter::Shelter(time_t prev_time, time_t current_time, time_t prev_income_time)
+Shelter::Shelter(time_t prev_time, time_t current_time, time_t prev_income_time, int bank_account, int montly_income)
 {
     this->prev_time = prev_time;
     this->current_time = current_time;
     this->prev_income_time = prev_income_time;
+    this->bank_account = bank_account;
+    this->monthly_income = monthly_income;
     // get current month 1 day as timestamp
     //struct tm * timeinfo;
     
@@ -187,13 +189,8 @@ bool Shelter::update()
                 this->bank_account -= temp_emp->get_salary();
             }
         }
-        
-        
-            
-            
+     
             // substract employee salaries from bank account
-
-
 
         return true;
     }

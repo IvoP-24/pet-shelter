@@ -24,12 +24,16 @@ int main(int argc, char** argv)
     time_t timestamp; 
     time(&timestamp);
 
-    getline(game_data,line);
 
+    getline(game_data,line);
     time_t prev_inc_time = stoi(line,0,10);
 
+    getline(game_data,line);
+    int bank_account = stoi(line,0,10);
+    getline(game_data,line);
+    int monthly_income = stoi(line,0,10);
 
-    Shelter shelter(prev_time,timestamp,prev_inc_time);
+    Shelter shelter(prev_time,timestamp,prev_inc_time,bank_account,monthly_income);
     
 
     getline(game_data,line);
@@ -120,6 +124,8 @@ int main(int argc, char** argv)
             game_data << prev_time << endl;
         }
         game_data << shelter.getPrevIncTime() << endl;
+        game_data << shelter.get_bank_account() << endl;
+        game_data << shelter.get_monthly_income() << endl;
         game_data << shelter.get_pets().size() << endl;
         for(Pet* pet: shelter.get_pets())
         {   
