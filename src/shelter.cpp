@@ -1,9 +1,22 @@
 #include "shelter.hpp"
 
-Shelter::Shelter(time_t prev_time, time_t current_time)
+
+
+Shelter::Shelter(time_t prev_time, time_t current_time, time_t prev_income_time)
 {
     this->prev_time = prev_time;
     this->current_time = current_time;
+    this->prev_income_time = prev_income_time;
+    // get current month 1 day as timestamp
+    //struct tm * timeinfo;
+    
+    //time_t rawtime;
+    //time ( &rawtime );
+    //timeinfo = localtime ( &rawtime );
+    //timeinfo->tm_mday = 1;
+    //prev_income_time = mktime(timeinfo);
+    
+
 }
 void Shelter::addPet(Pet* pet)
 {
@@ -30,37 +43,132 @@ bool Shelter::update()
             pet->update_happines();
         }
         
-        vector<Task> tasks_to_delete;
-        for(Task task: tasks)
+        vector<Task*> tasks_to_delete;
+        for(Task* task: tasks)
         {
-            int passed_time_spent_on_work = 0;
-            if(deltaTime >= task.duration)
+            Employee curr_employee;
+            for(Employee* temp_emp : this->employes)
             {
-                passed_time_spent_on_work = task.duration;
+                if(temp_emp->get_id().compare(task->employee_id) == 0)
+                curr_employee = *temp_emp;
             }
-            else if(deltaTime < task.duration)
+    
+            int passed_time_spent_on_work = 0;
+            if(deltaTime >= task->duration)
+            {
+                passed_time_spent_on_work = task->duration;
+            }
+            else if(deltaTime < task->duration)
             {
                 passed_time_spent_on_work = deltaTime;
             }
-            if(task.task_type == FEED)
+            switch(task->task_type)
             {
-                for(Pet* pet : pets)
-                {
-                    
-                    pet->feed(passed_time_spent_on_work * 10);
-            
-                }
+
+                case GROOM:
+                    for(Pet* pet : pets)
+                    {                      
+
+                        int curr_attr = pet->get_attractivenes();
+                        cout << "current attractiveness: "<< curr_attr << endl;
+                        if(curr_attr < 900)
+                            {
+                                if(deltaTime >= task->duration)
+                            {
+                                passed_time_spent_on_work = task->duration;
+                                deltaTime-=task->duration;
+                            }
+                            else if(deltaTime < task->duration)
+                            {
+                                cout << "we are here" << endl;
+                                passed_time_spent_on_work = deltaTime;
+                                deltaTime = 0;
+                            }
+                            int lacking_attr = 1000-curr_attr;
+                            cout << "lacking attractiveness: "<< lacking_attr << endl;
+                            if(lacking_attr/100<=passed_time_spent_on_work)
+                            {
+                                pet->groom(lacking_attr*(curr_employee.get_grooming_skill_level()/10.0));
+                                task->duration -= lacking_attr/100;
+                            }
+                            else if(lacking_attr/100>passed_time_spent_on_work)
+                            {
+                                cout << "*************************" <<endl;
+                                cout << passed_time_spent_on_work << endl
+                                    << lacking_attr << endl
+                                    <<task->duration << endl;
+                                pet->groom(passed_time_spent_on_work*100*(curr_employee.get_grooming_skill_level()/10.0));
+                                task->duration -=passed_time_spent_on_work;
+
+                                cout << passed_time_spent_on_work << endl
+                                    << lacking_attr << endl
+                                    <<task->duration << endl;
+                                cout << "*************************" <<endl;
+                            }
+                        }
+                        if( task->duration <= 0 | deltaTime <= 0)
+                        {
+                            break;
+                        }
+                        
+                    }
+                    break;
+                case ADVERTISE:
+                case TAKE_CARE:
+                    for(Pet* pet : pets)
+                    {
+                        pet->increase_happines(passed_time_spent_on_work * 100*(curr_employee.get_grooming_skill_level()/10.0));
+                    }
+                    task->duration-=passed_time_spent_on_work;
+                    break;
+                case FEED:
+                    for(Pet* pet : pets)
+                    {
+                        pet->feed(passed_time_spent_on_work * 10);
+                    }
+                    task->duration-=passed_time_spent_on_work;
+                    break;
             }
-            task.duration-=passed_time_spent_on_work;
-            if(task.duration == 0)
+
+            
+            if(task->duration == 0)
             {
                 tasks_to_delete.push_back(task);
             }
         }
-        for(Task task: tasks_to_delete)
+        for(Task* task: tasks_to_delete)
         {
             tasks.erase(find(tasks.begin(),tasks.end(),task));
         }
+
+        // check last time income came to account
+        
+        //convert last time income to tm structure
+        struct tm* tm_prev_inc =  localtime(&this->prev_income_time);
+        //convert current time to tm structure
+        struct tm* tm_cur_time =  localtime(&this->current_time);
+        //substract month numbers
+        //if result is > 0      
+        if(abs(tm_cur_time->tm_mon - tm_prev_inc->tm_mon )>0)
+        {
+            // add monthy income to account 
+            this->bank_account += this->monthly_income;
+            // set last time income came to account (last time income came to account + 1m)
+            tm_prev_inc->tm_mon++;
+            prev_income_time = mktime(tm_prev_inc);
+            for(Employee* temp_emp : employes)
+            {
+                this->bank_account -= temp_emp->get_salary();
+            }
+        }
+        
+        
+            
+            
+            // substract employee salaries from bank account
+
+
+
         return true;
     }
     return false;
@@ -88,15 +196,24 @@ void Shelter::show_pets_stats()
 void Shelter::addNewTask(const string& employee_id, Task_type task_type, int duration)
 {
     
-    this->tasks.push_back(Task(to_string(this->tasks.size()),employee_id,task_type,duration));
+    for(Task* temp_task: tasks)
+    {
+        if(temp_task->employee_id.compare(employee_id) == 0)
+        {
+            cout << "Current Employee is already bussy" << endl;
+            return;
+        }
+    }
+
+    this->tasks.push_back(new Task(to_string(this->tasks.size()),employee_id,task_type,duration));
 
 }
 
 void Shelter::showTasks()
 {
-    for(Task task: tasks)
+    for(Task* task: tasks)
     {    
-        cout << task.id << " " << task.employee_id << " " << task.task_type << " "  << task.duration << endl;
+        cout << task->id << " " << task->employee_id << " " << enum_to_string(task->task_type) << " "  << task->duration << endl;
     }
 }
 

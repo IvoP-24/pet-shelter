@@ -24,8 +24,14 @@ int main(int argc, char** argv)
     time_t timestamp; 
     time(&timestamp);
 
-    Shelter shelter(prev_time,timestamp);
+    getline(game_data,line);
+
+    time_t prev_inc_time = stoi(line,0,10);
+
+
+    Shelter shelter(prev_time,timestamp,prev_inc_time);
     
+
     getline(game_data,line);
     int pet_count = stoi(line,0,10);
 
@@ -86,13 +92,21 @@ int main(int argc, char** argv)
     }
 
     game_data.close();
-
-    if(string(argv[1]).compare("feed") == 0)
-    {
-        shelter.addNewTask(shelter.get_employes()[0]->get_id(),Task_type::FEED,1);
-    }
     
     bool update = shelter.update();
+    
+    if(argc > 1) //employee_id task_type duration ./shelter 0 FEED 5
+    {
+        
+        Task_type tsk = string_to_enum(string(argv[2]));
+        if(tsk)
+        {
+            cout << string(argv[1]) << tsk << stoi(argv[3]) << endl;
+            shelter.addNewTask(string(argv[1]),tsk,stoi(argv[3]));
+        }
+        
+    }
+    
     if(true)
     {
         ofstream game_data;
@@ -105,6 +119,7 @@ int main(int argc, char** argv)
         {
             game_data << prev_time << endl;
         }
+        game_data << shelter.getPrevIncTime() << endl;
         game_data << shelter.get_pets().size() << endl;
         for(Pet* pet: shelter.get_pets())
         {   
@@ -127,12 +142,12 @@ int main(int argc, char** argv)
         if(shelter.getTasks().size() > 0)
         {
             game_data << shelter.getTasks().size() << endl;
-            for(Task task: shelter.getTasks())
+            for(Task* task: shelter.getTasks())
             {
-                game_data << task.id << endl; 
-                game_data << task.employee_id << endl; 
-                game_data << task.task_type << endl; 
-                game_data << task.duration << endl;
+                game_data << task->id << endl; 
+                game_data << task->employee_id << endl; 
+                game_data << task->task_type << endl; 
+                game_data << task->duration << endl;
             
             }
         }
