@@ -15,6 +15,7 @@ Or run with makefile:
 
 make game2    
 Run with second save file
+
 make game3    
 Run with third save file
 
