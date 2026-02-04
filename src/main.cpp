@@ -6,14 +6,6 @@
 
 
 
-string cleanID(string s) {
-    string result;
-    for(char c : s) {
-        if(c >= 32 && c < 127) result += c;
-    }
-    return result.empty() ? "0" : result;
-}
-
 using namespace std;
 
 int main(int argc, char** argv)
@@ -92,7 +84,6 @@ int main(int argc, char** argv)
             Task_type temp_task_type;
             time_t temp_start_time;
             int temp_duration;
-            if(getline(game_data,line)){temp_employee_id = cleanID(line);}else{break;}
             if(getline(game_data,line)){temp_employee_id = line;}else{break;}
             if(getline(game_data,line)){temp_task_type = Task_type(stoi(line));}else{break;}
             if(getline(game_data,line)){temp_duration = stoi(line);}else{break;}
