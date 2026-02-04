@@ -6,6 +6,14 @@
 
 
 
+string cleanID(string s) {
+    string result;
+    for(char c : s) {
+        if(c >= 32 && c < 127) result += c;
+    }
+    return result.empty() ? "0" : result;
+}
+
 using namespace std;
 
 int main(int argc, char** argv)
@@ -16,7 +24,8 @@ int main(int argc, char** argv)
     ifstream game_data;
     Pet::get_names_from_file();
     Employee::get_names_from_file();
-    game_data.open("game_data.txt");
+    string filename = (argc > 1) ? argv[1] : "game_data.txt";
+    game_data.open(filename);
     
     getline(game_data,line);
 
@@ -24,16 +33,12 @@ int main(int argc, char** argv)
     time_t timestamp; 
     time(&timestamp);
 
-
     getline(game_data,line);
+
     time_t prev_inc_time = stoi(line,0,10);
 
-    getline(game_data,line);
-    int bank_account = stoi(line,0,10);
-    getline(game_data,line);
-    int monthly_income = stoi(line,0,10);
 
-    Shelter shelter(prev_time,timestamp,prev_inc_time,bank_account,monthly_income);
+    Shelter shelter(prev_time,timestamp,prev_inc_time);
     
 
     getline(game_data,line);
@@ -46,7 +51,7 @@ int main(int argc, char** argv)
         int temp_hap;
         string temp_id;
         string temp_name;
-        if(getline(game_data,line)){temp_id = line;}else{break;}
+        if(getline(game_data,line)){temp_id = cleanID(line);}else{break;}
         if(getline(game_data,line)){temp_name = line;}else{break;}
         if(getline(game_data,line)){temp_at = stoi(line);}else{break;}
         if(getline(game_data,line)){temp_hun = stoi(line);}else{break;}
@@ -67,7 +72,7 @@ int main(int argc, char** argv)
         int temp_sl;
         string temp_id;
         string temp_name;
-        if(getline(game_data,line)){temp_id = line;}else{break;}
+        if(getline(game_data,line)){temp_id = cleanID(line);}else{break;}
         if(getline(game_data,line)){temp_name = line;}else{break;}
         if(getline(game_data,line)){temp_gr = stoi(line);}else{break;}
         if(getline(game_data,line)){temp_mr = stoi(line);}else{break;}
@@ -78,7 +83,7 @@ int main(int argc, char** argv)
 
     }
 
-    if(getline(game_data,line))
+    if(getline(game_data,line) && !line.empty())
     {
         int task_count = stoi(line,0,10);
         for(int i = 0; i< task_count; i++)
@@ -87,7 +92,7 @@ int main(int argc, char** argv)
             Task_type temp_task_type;
             time_t temp_start_time;
             int temp_duration;
-            if(getline(game_data,line)){;}else{break;}
+            if(getline(game_data,line)){temp_employee_id = cleanID(line);}else{break;}
             if(getline(game_data,line)){temp_employee_id = line;}else{break;}
             if(getline(game_data,line)){temp_task_type = Task_type(stoi(line));}else{break;}
             if(getline(game_data,line)){temp_duration = stoi(line);}else{break;}
@@ -99,7 +104,7 @@ int main(int argc, char** argv)
     
     bool update = shelter.update();
     
-    if(argc > 1) //employee_id task_type duration ./shelter 0 FEED 5
+    if(argc > 3) 
     {
         
         Task_type tsk = string_to_enum(string(argv[2]));
@@ -114,7 +119,7 @@ int main(int argc, char** argv)
     if(true)
     {
         ofstream game_data;
-        game_data.open("game_data.txt", ios::out | ios::trunc);
+        game_data.open(filename, ios::out | ios::trunc);
         if(update)
         {
             game_data << timestamp << endl;
@@ -124,8 +129,6 @@ int main(int argc, char** argv)
             game_data << prev_time << endl;
         }
         game_data << shelter.getPrevIncTime() << endl;
-        game_data << shelter.get_bank_account() << endl;
-        game_data << shelter.get_monthly_income() << endl;
         game_data << shelter.get_pets().size() << endl;
         for(Pet* pet: shelter.get_pets())
         {   

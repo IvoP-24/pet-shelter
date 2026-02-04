@@ -18,11 +18,11 @@ class Shelter{
         vector<Task*> tasks;
         time_t prev_time;
         time_t current_time;
-        int bank_account;
-        int monthly_income = 0;
+        float bank_account = 10000;
+        float monthly_income = 0;
         time_t prev_income_time; //Www Mmm dd hh:mm:ss yyyy
     public:
-        Shelter(time_t prev_time, time_t current_time, time_t prev_income_time, int bank_account, int montly_income);
+        Shelter(time_t prev_time, time_t current_time, time_t prev_income_time);
         void addPet(Pet* pet);
         void addEmployee(Employee* employee);
         bool update();
@@ -32,8 +32,6 @@ class Shelter{
         void addNewTask(const string& employee_id, Task_type task_type, int duration);
         void showTasks();
         time_t getPrevIncTime(){return this->prev_income_time;};
-        int get_bank_account(){return this->bank_account;}
-        int get_monthly_income(){return this->monthly_income;}
         vector<Task*> getTasks(){return this->tasks;};
         vector<Pet*> get_pets(){return this->pets;};
         vector<Employee*> get_employes(){return this->employes;};

@@ -2,13 +2,11 @@
 
 
 
-Shelter::Shelter(time_t prev_time, time_t current_time, time_t prev_income_time, int bank_account, int montly_income)
+Shelter::Shelter(time_t prev_time, time_t current_time, time_t prev_income_time)
 {
     this->prev_time = prev_time;
     this->current_time = current_time;
     this->prev_income_time = prev_income_time;
-    this->bank_account = bank_account;
-    this->monthly_income = monthly_income;
     // get current month 1 day as timestamp
     //struct tm * timeinfo;
     
@@ -116,6 +114,7 @@ bool Shelter::update()
                     }
                     break;
                 case ADVERTISE:
+                {
                     float mark_coef = curr_employee.get_marketing_skill_level()/10.0;
                     for(int i = 0; i<passed_time_spent_on_work; i++)
                     {
@@ -141,7 +140,8 @@ bool Shelter::update()
                         }
                     }
 
-                    break; 
+                    break;
+                } 
                 case TAKE_CARE:
                     for(Pet* pet : pets)
                     {
@@ -189,8 +189,13 @@ bool Shelter::update()
                 this->bank_account -= temp_emp->get_salary();
             }
         }
-     
+        
+        
+            
+            
             // substract employee salaries from bank account
+
+
 
         return true;
     }

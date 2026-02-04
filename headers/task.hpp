@@ -27,7 +27,7 @@ inline string enum_to_string(Task_type task)
         case Task_type::TAKE_CARE: return "TAKE_CARE";
         case Task_type::FEED: return "FEED";
     }
-    return NULL;
+    return "";
 }
 
 inline Task_type string_to_enum(const string& task)
